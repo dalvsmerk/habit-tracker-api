@@ -1,0 +1,6 @@
+# IDE
+.vs_code
+.idea
+
+# Dependencies
+node_modules
