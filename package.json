@@ -1,0 +1,19 @@
+{
+  "name": "habit-tracker-api",
+  "version": "0.1.0",
+  "description": "RESTful API for HabitTracker application",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dalvsmerk/habit-tracker-api.git"
+  },
+  "author": "Vladyslav Umerenko <vladyslav.umerenko@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/dalvsmerk/habit-tracker-api/issues"
+  },
+  "homepage": "https://github.com/dalvsmerk/habit-tracker-api#readme"
+}
