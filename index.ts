@@ -5,7 +5,8 @@ const server = fastify({ logger: true });
 
 server.get('/ping', () => 'pong');
 
-const shutdown = (code: number) => () => {
+const shutdown = (code: number) => (err: Error) => {
+    server.log.error(err);
     server.close();
     process.exit(code);
 };
