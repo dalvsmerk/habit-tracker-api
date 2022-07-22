@@ -1,9 +1,10 @@
 import fastify from 'fastify';
 import { config } from './lib/config';
+import { registerIdentityRoutes } from './lib/identity/routes';
 
 const server = fastify({ logger: true });
 
-server.get('/ping', () => 'pong');
+registerIdentityRoutes(server);
 
 const shutdown = (code: number) => (err: Error) => {
     server.log.error(err);
