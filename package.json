@@ -22,7 +22,8 @@
   "homepage": "https://github.com/dalvsmerk/habit-tracker-api#readme",
   "dependencies": {
     "fastify": "^4.2.1",
-    "knex": "^2.2.0"
+    "knex": "^2.2.0",
+    "sqlite3": "^5.0.10"
   },
   "devDependencies": {
     "@types/jest": "^28.1.6",

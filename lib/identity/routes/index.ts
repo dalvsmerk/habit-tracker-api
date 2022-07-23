@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { createUserRoute } from './create-user';
+import { createUserRoute } from './create-user.route';
 
 export const registerIdentityRoutes = (server: FastifyInstance) => {
-  return server.route(createUserRoute);
+  server.post('/v1/user', createUserRoute);
+  return server;
 };
