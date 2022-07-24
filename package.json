@@ -2,13 +2,15 @@
   "name": "habit-tracker-api",
   "version": "0.1.0",
   "description": "RESTful API for HabitTracker application",
-  "main": "index.ts",
+  "main": "habit-tracker.ts",
   "scripts": {
     "test": "jest",
-    "start": "ts-node index.ts",
+    "start": "ts-node habit-tracker.ts",
     "build": "tsc -p tsconfig.json",
     "lint": "eslint . --ext .ts",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "migrate:up": "knex migrate:up",
+    "migrate:down": "knex migrate:down"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,8 @@
   },
   "homepage": "https://github.com/dalvsmerk/habit-tracker-api#readme",
   "dependencies": {
+    "@fastify/awilix": "^3.0.0",
+    "awilix": "^7.0.3",
     "fastify": "^4.2.1",
     "knex": "^2.2.0",
     "sqlite3": "^5.0.10"

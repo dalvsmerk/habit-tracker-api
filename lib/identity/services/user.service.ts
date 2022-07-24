@@ -1,13 +1,14 @@
 import { UserEmailExistsError } from '../errors/email-exists.error';
-import { IUserRepository } from '../repositories/user.repository';
+import { IUserRepository, UserEntity } from '../repositories/user.repository';
+import { IPasswordService } from './password.service';
 
-interface SignUpUserDTO {
+export interface SignUpUserDTO {
   name: string;
   email: string;
   password: string;
 }
 
-interface ReadUserDTO {
+export interface ReadUserDTO {
   id: number;
   name: string;
   email: string;
@@ -18,9 +19,12 @@ export interface IUserService {
 }
 
 export class UserService implements IUserService {
-  constructor(readonly userRepository: IUserRepository) {}
+  constructor(
+    readonly userRepository: IUserRepository,
+    readonly passwordService: IPasswordService,
+  ) {}
 
-  async signUp(userDTO: SignUpUserDTO): Promise<ReadUserDTO> {
+  public async signUp(userDTO: SignUpUserDTO): Promise<ReadUserDTO> {
     const { email } = userDTO;
     const userWithEmail = await this.userRepository.findByEmail(email);
 
@@ -28,7 +32,12 @@ export class UserService implements IUserService {
       throw new UserEmailExistsError(email);
     }
 
-    // TODO: Hash passwords
-    return await this.userRepository.create(userDTO);
+    const userEntity: Omit<UserEntity, 'id'> = {
+      name: userDTO.name,
+      email: userDTO.email,
+      password: await this.passwordService.encode(userDTO.password),
+    };
+
+    return await this.userRepository.create(userEntity);
   }
 }

@@ -13,13 +13,23 @@ export interface IUserRepository extends IBaseRepository<UserEntity> {
 }
 
 export class UserRepository implements IUserRepository {
-  constructor(readonly dbContext: Knex) {}
+  constructor(readonly knex: Knex) {}
 
-  async findByEmail(email: string): Promise<UserEntity | null> {
-    return null;
+  public async findByEmail(email: string): Promise<UserEntity | null> {
+    return this.knex
+      .select('*')
+      .from<UserEntity>('users')
+      .where('email', email)
+      .first()
+      .then();
   }
 
-  async create(user: Omit<UserEntity, 'id'>): Promise<UserEntity> {
-    return {};
+  public async create(user: Omit<UserEntity, 'id'>): Promise<UserEntity> {
+    return this.knex
+      .insert(user)
+      .into('users')
+      .returning('*')
+      // TODO: Remove once SQLite is not used anymore (it doesn't support RETURNING clause)
+      .then(async () => (await this.findByEmail(user.email)) as UserEntity);
   }
 }
