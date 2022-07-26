@@ -9,6 +9,7 @@ export interface UserEntity extends BaseEntity {
 
 export interface IUserRepository extends IBaseRepository<UserEntity> {
   findByEmail(email: string): Promise<UserEntity | null>;
+  findById(id: number): Promise<UserEntity | null>;
   create(user: Omit<UserEntity, 'id'>): Promise<UserEntity>;
 }
 
@@ -20,6 +21,15 @@ export class UserRepository implements IUserRepository {
       .select('*')
       .from<UserEntity>('users')
       .where('email', email)
+      .first()
+      .then();
+  }
+
+  public async findById(id: number): Promise<UserEntity | null> {
+    return this.knex
+      .select('*')
+      .from<UserEntity>('users')
+      .where('id', id)
       .first()
       .then();
   }

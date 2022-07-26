@@ -14,8 +14,13 @@ export interface TokenDTO {
   accessToken: string;
 }
 
+interface AccessTokenPayload {
+  userId: number;
+}
+
 export interface IAuthService {
-  authenticateByEmailPassword(credentials: AuthenticateUserDTO): Promise<TokenDTO>;
+  authenticateByEmailPassword(credentialsDTO: AuthenticateUserDTO): Promise<TokenDTO>;
+  verifyToken(tokenDTO: TokenDTO): Promise<boolean>;
 }
 
 export class AuthService implements IAuthService {
@@ -25,8 +30,8 @@ export class AuthService implements IAuthService {
     readonly cryptoService: ICryptoService,
   ) {}
 
-  async authenticateByEmailPassword(credentials: AuthenticateUserDTO): Promise<TokenDTO> {
-    const { email, password } = credentials;
+  public async authenticateByEmailPassword(credentialsDTO: AuthenticateUserDTO): Promise<TokenDTO> {
+    const { email, password } = credentialsDTO;
     const userByEmail = await this.userRepository.findByEmail(email);
 
     if (!userByEmail) {
@@ -42,9 +47,22 @@ export class AuthService implements IAuthService {
     return await this.generateTokenFor(userByEmail);
   }
 
-  async generateTokenFor(user: UserEntity): Promise<TokenDTO> {
+  public async verifyToken(tokenDTO: TokenDTO): Promise<boolean> {
+    const verifyAsync = new Promise<AccessTokenPayload>((resolve) => {
+      const payload = jwt.verify(tokenDTO.accessToken, 'loh') as AccessTokenPayload;
+
+      resolve(payload);
+    });
+
+    const payload = await verifyAsync;
+    const user = await this.userRepository.findById(payload.userId);
+
+    return !!user;
+  }
+
+  private async generateTokenFor(user: UserEntity): Promise<TokenDTO> {
     // TODO: Improve authentication security
-    const accessToken = jwt.sign({ id: user.id }, 'loh');
+    const accessToken = jwt.sign({ userId: user.id }, 'loh');
 
     return { accessToken };
   }
