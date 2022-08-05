@@ -5,6 +5,7 @@ import { registerIdentityRoutes } from './identity/routes';
 import { InternalError } from './common/errors/internal.error';
 import { registerDependencies } from './di-container';
 import { NotFoundError } from './common/errors/not-found.error';
+import { NotAuthorisedError } from './identity/errors/not-authorised.error';
 
 export async function start() {
   const server = fastify({ logger: true });
@@ -18,6 +19,8 @@ export async function start() {
   process.once('SIGINT', onClose);
 
   const diContainer = registerDependencies(server);
+
+  server.decorateRequest('user', undefined);
 
   registerIdentityRoutes(server, diContainer);
   server.setErrorHandler(onServerError);
@@ -45,11 +48,18 @@ function shutdown(server: FastifyInstance, code: number) {
   };
 }
 
-async function onServerError(error: FastifyError, req: FastifyRequest, res: FastifyReply) {
+async function onServerError<E extends FastifyError>(error: E, req: FastifyRequest, res: FastifyReply) {
   if (error.validation) {
     return res.status(400).send({
       success: false,
       error: new ValidationError(error),
+    });
+  }
+
+  if (error instanceof NotAuthorisedError) {
+    return res.status(401).send({
+      success: false,
+      error,
     });
   }
 

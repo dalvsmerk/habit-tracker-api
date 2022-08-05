@@ -48,7 +48,7 @@ export const createUserRoute = (diContainer: AwilixContainer): RouteShorthandOpt
       },
     },
   },
-  handler: async (req: FastifyRequest, res: FastifyReply) => {
+  async handler(req: FastifyRequest, res: FastifyReply) {
     const userService = diContainer.resolve<IUserService>('userService');
 
     try {

@@ -5,6 +5,7 @@ import { UserEmailNotFoundError } from '../errors/user-email-not-found.error';
 import { UserPasswordIncorrectError } from '../errors/user-password-incorrect.error';
 import { IUserRepository, UserEntity } from '../repositories/user.repository';
 import { IPasswordService } from './password.service';
+import { ReadUserDTO } from './user.service';
 
 export interface AuthenticateUserDTO {
   email: string;
@@ -22,7 +23,8 @@ interface AccessTokenPayload {
 
 export interface IAuthService {
   authenticateByEmailPassword(credentialsDTO: AuthenticateUserDTO): Promise<TokenDTO>;
-  verifyToken(tokenDTO: TokenDTO): Promise<boolean>;
+  verifyToken(tokenDTO: TokenDTO): Promise<[boolean, ReadUserDTO | null]>;
+  decodeUser(tokenDTO: TokenDTO): Promise<ReadUserDTO | null>;
 }
 
 export class AuthService implements IAuthService {
@@ -31,7 +33,7 @@ export class AuthService implements IAuthService {
     readonly passwordService: IPasswordService,
     readonly cryptoService: ICryptoService,
     readonly cacheService: ICacheService,
-    readonly configService: IConfig,
+    readonly config: IConfig,
   ) {}
 
   public async authenticateByEmailPassword(credentialsDTO: AuthenticateUserDTO): Promise<TokenDTO> {
@@ -51,36 +53,42 @@ export class AuthService implements IAuthService {
     const token = await this.generateTokenFor(userByEmail);
 
     this.cacheService.set(
-      this.configService.session.jwt.cache.pattern(userByEmail.id),
+      this.config.session.jwt.cache.pattern(userByEmail.id),
       token.accessToken,
-      this.configService.session.jwt.cache.ttl,
+      this.config.session.jwt.cache.ttl,
     );
 
     return token;
   }
 
-  public async verifyToken(tokenDTO: TokenDTO): Promise<boolean> {
+  public async verifyToken(tokenDTO: TokenDTO): Promise<[boolean, ReadUserDTO | null]> {
     try {
-      const payload = await this.cryptoService.verifyJwt(tokenDTO.accessToken);
-
-      if (!('sub' in payload)) {
-        return false;
-      }
-
-      const user = await this.userRepository.findById(Number(payload.sub));
+      const user = await this.decodeUser(tokenDTO);
 
       if (user) {
         const cachedAccessToken = this.cacheService.get(
-          this.configService.session.jwt.cache.pattern(user.id),
+          this.config.session.jwt.cache.pattern(user.id),
         );
 
-        return !!cachedAccessToken && cachedAccessToken === tokenDTO.accessToken;
+        const tokenValid = !!cachedAccessToken && cachedAccessToken === tokenDTO.accessToken;
+
+        return [tokenValid, user];
       }
 
-      return false;
+      return [false, null];
     } catch {
-      return false;
+      return [false, null];
     }
+  }
+
+  public async decodeUser(tokenDTO: TokenDTO): Promise<ReadUserDTO | null> {
+    const payload = await this.cryptoService.verifyJwt(tokenDTO.accessToken);
+
+    if (!('sub' in payload)) {
+      return null;
+    }
+
+    return await this.userRepository.findById(Number(payload.sub));
   }
 
   private async generateTokenFor(user: UserEntity): Promise<TokenDTO> {

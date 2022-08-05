@@ -48,7 +48,7 @@ export const createToken = (container: AwilixContainer): RouteShorthandOptionsWi
       },
     },
   },
-  handler: async (req: FastifyRequest, res: FastifyReply) => {
+  async handler(req: FastifyRequest, res: FastifyReply) {
     const authService = container.resolve<IAuthService>('authService');
     const credentials = req.body as AuthenticateUserDTO;
 
