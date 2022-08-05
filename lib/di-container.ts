@@ -17,6 +17,7 @@ export function registerDependencies(server: FastifyInstance) {
   };
 
   diContainer.register({
+    config: asFunction(() => config, defaultDiOptions),
     knex: asFunction(() => knex(config.db), defaultDiOptions),
     userService: asClass(UserService, defaultDiOptions),
     passwordService: asClass(PasswordService, defaultDiOptions),

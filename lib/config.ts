@@ -13,4 +13,9 @@ export const config = {
       },
       useNullAsDefault: true,
     },
+    secrets: {
+      jwt: process.env.JWT_SECRET || 'putin_huilo',
+    },
 };
+
+export type IConfig = typeof config;

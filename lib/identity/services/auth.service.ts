@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import { ICryptoService } from '../../common/services/crypto.service';
 import { UserEmailNotFoundError } from '../errors/user-email-not-found.error';
 import { UserPasswordIncorrectError } from '../errors/user-password-incorrect.error';
@@ -15,7 +14,8 @@ export interface TokenDTO {
 }
 
 interface AccessTokenPayload {
-  userId: number;
+  sub: string;
+  iat: number;
 }
 
 export interface IAuthService {
@@ -48,21 +48,26 @@ export class AuthService implements IAuthService {
   }
 
   public async verifyToken(tokenDTO: TokenDTO): Promise<boolean> {
-    const verifyAsync = new Promise<AccessTokenPayload>((resolve) => {
-      const payload = jwt.verify(tokenDTO.accessToken, 'loh') as AccessTokenPayload;
+    try {
+      const payload = await this.cryptoService.verifyJwt(tokenDTO.accessToken);
 
-      resolve(payload);
-    });
+      if (!('sub' in payload)) {
+        return false;
+      }
 
-    const payload = await verifyAsync;
-    const user = await this.userRepository.findById(payload.userId);
+      const user = await this.userRepository.findById(Number(payload.sub));
 
-    return !!user;
+      return !!user;
+    } catch {
+      return false;
+    }
   }
 
   private async generateTokenFor(user: UserEntity): Promise<TokenDTO> {
-    // TODO: Improve authentication security
-    const accessToken = jwt.sign({ userId: user.id }, 'loh');
+    const accessToken = this.cryptoService.signJwt<AccessTokenPayload>({
+      sub: user.id.toString(),
+      iat: Date.now(),
+    });
 
     return { accessToken };
   }
