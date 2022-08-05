@@ -1,4 +1,6 @@
+import { ICacheService } from '../../common/services/cache.service';
 import { ICryptoService } from '../../common/services/crypto.service';
+import { IConfig } from '../../config';
 import { UserEmailNotFoundError } from '../errors/user-email-not-found.error';
 import { UserPasswordIncorrectError } from '../errors/user-password-incorrect.error';
 import { IUserRepository, UserEntity } from '../repositories/user.repository';
@@ -28,6 +30,8 @@ export class AuthService implements IAuthService {
     readonly userRepository: IUserRepository,
     readonly passwordService: IPasswordService,
     readonly cryptoService: ICryptoService,
+    readonly cacheService: ICacheService,
+    readonly configService: IConfig,
   ) {}
 
   public async authenticateByEmailPassword(credentialsDTO: AuthenticateUserDTO): Promise<TokenDTO> {
@@ -44,7 +48,15 @@ export class AuthService implements IAuthService {
       throw new UserPasswordIncorrectError();
     }
 
-    return await this.generateTokenFor(userByEmail);
+    const token = await this.generateTokenFor(userByEmail);
+
+    this.cacheService.set(
+      this.configService.session.jwt.cache.pattern(userByEmail.id),
+      token.accessToken,
+      this.configService.session.jwt.cache.ttl,
+    );
+
+    return token;
   }
 
   public async verifyToken(tokenDTO: TokenDTO): Promise<boolean> {
@@ -57,7 +69,15 @@ export class AuthService implements IAuthService {
 
       const user = await this.userRepository.findById(Number(payload.sub));
 
-      return !!user;
+      if (user) {
+        const cachedAccessToken = this.cacheService.get(
+          this.configService.session.jwt.cache.pattern(user.id),
+        );
+
+        return !!cachedAccessToken && cachedAccessToken === tokenDTO.accessToken;
+      }
+
+      return false;
     } catch {
       return false;
     }
