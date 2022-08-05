@@ -5,6 +5,10 @@ export class ValidationError extends CodedError {
   code = 'E_VALIDATION';
 
   constructor(error: FastifyError) {
-    super(error.validation ? error.validation[0].message : 'Validation error');
+    const message = error.validation
+      ? error.validation.map(v => v.message).join(', ')
+      : 'Validation error';
+
+    super(message);
   }
 }
