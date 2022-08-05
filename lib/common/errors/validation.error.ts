@@ -1,5 +1,5 @@
 import { FastifyError } from 'fastify';
-import { CodedError } from './with-code.error';
+import { CodedError } from './coded.error';
 
 export class ValidationError extends CodedError {
   code = 'E_VALIDATION';

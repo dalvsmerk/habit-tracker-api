@@ -1,4 +1,4 @@
-import { CodedError } from './with-code.error';
+import { CodedError } from './coded.error';
 
 export class InternalError extends CodedError {
   code = 'E_INTERNAL';

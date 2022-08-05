@@ -1,4 +1,4 @@
-import { CodedError } from '../../common/errors/with-code.error';
+import { CodedError } from '../../common/errors/coded.error';
 
 export class UserEmailNotFoundError extends CodedError {
   code = 'E_USER_EMAIL_NOT_FOUND';

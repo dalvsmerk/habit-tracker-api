@@ -1,4 +1,4 @@
-import { CodedError } from './with-code.error';
+import { CodedError } from './coded.error';
 
 export class NotFoundError extends CodedError {
   code = 'E_NOT_FOUND';
