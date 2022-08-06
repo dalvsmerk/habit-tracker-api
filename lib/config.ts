@@ -18,10 +18,7 @@ export const config = {
   },
   session: {
     jwt: {
-      cache: {
-        pattern: (userId: number) => `accessToken:userId:${userId}`,
-        ttl: 1000 * 60 * 60,
-      },
+      ttl: 1000 * 60 * 60 * 24 * 7, // 7 days
     },
   },
 };

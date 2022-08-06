@@ -1,4 +1,3 @@
-import { ICacheService } from '../../common/services/cache.service';
 import { ICryptoService } from '../../common/services/crypto.service';
 import { IConfig } from '../../config';
 import { UserEmailNotFoundError } from '../errors/user-email-not-found.error';
@@ -19,20 +18,21 @@ export interface TokenDTO {
 interface AccessTokenPayload {
   sub: string;
   iat: number;
+  exp: number;
 }
 
 export interface IAuthService {
   authenticateByEmailPassword(credentialsDTO: AuthenticateUserDTO): Promise<TokenDTO>;
   verifyToken(tokenDTO: TokenDTO): Promise<[boolean, ReadUserDTO | null]>;
-  decodeUser(tokenDTO: TokenDTO): Promise<ReadUserDTO | null>;
 }
 
 export class AuthService implements IAuthService {
+  static VALID_JWT_PAYLOAD = ['sub', 'iat', 'exp'];
+
   constructor(
     readonly userRepository: IUserRepository,
     readonly passwordService: IPasswordService,
     readonly cryptoService: ICryptoService,
-    readonly cacheService: ICacheService,
     readonly config: IConfig,
   ) {}
 
@@ -52,27 +52,28 @@ export class AuthService implements IAuthService {
 
     const token = await this.generateTokenFor(userByEmail);
 
-    this.cacheService.set(
-      this.config.session.jwt.cache.pattern(userByEmail.id),
-      token.accessToken,
-      this.config.session.jwt.cache.ttl,
-    );
-
     return token;
   }
 
   public async verifyToken(tokenDTO: TokenDTO): Promise<[boolean, ReadUserDTO | null]> {
     try {
-      const user = await this.decodeUser(tokenDTO);
+      const payload = await this.cryptoService.verifyJwt<AccessTokenPayload>(tokenDTO.accessToken);
+      const validPayload = payload && AuthService.VALID_JWT_PAYLOAD.every(k => k in payload);
+
+      if (!validPayload) {
+        return [false, null];
+      }
+
+      const expired = Date.now() > payload.exp;
+
+      if (expired) {
+        return [false, null];
+      }
+
+      const user = await this.userRepository.findById(Number(payload.sub));
 
       if (user) {
-        const cachedAccessToken = this.cacheService.get(
-          this.config.session.jwt.cache.pattern(user.id),
-        );
-
-        const tokenValid = !!cachedAccessToken && cachedAccessToken === tokenDTO.accessToken;
-
-        return [tokenValid, user];
+        return [true, user];
       }
 
       return [false, null];
@@ -81,20 +82,13 @@ export class AuthService implements IAuthService {
     }
   }
 
-  public async decodeUser(tokenDTO: TokenDTO): Promise<ReadUserDTO | null> {
-    const payload = await this.cryptoService.verifyJwt(tokenDTO.accessToken);
-
-    if (!('sub' in payload)) {
-      return null;
-    }
-
-    return await this.userRepository.findById(Number(payload.sub));
-  }
-
   private async generateTokenFor(user: UserEntity): Promise<TokenDTO> {
+    const now = Date.now();
+
     const accessToken = this.cryptoService.signJwt<AccessTokenPayload>({
       sub: user.id.toString(),
-      iat: Date.now(),
+      iat: now,
+      exp: now + this.config.session.jwt.ttl,
     });
 
     return { accessToken };
