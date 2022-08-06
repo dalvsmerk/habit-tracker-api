@@ -1,15 +1,17 @@
 import { AwilixContainer } from 'awilix';
 import { FastifyReply, FastifyRequest, RouteShorthandOptionsWithHandler } from 'fastify';
-import { UserEmailExistsError } from '../errors/email-exists.error';
-import { IUserService, SignUpUserDTO } from '../services/user.service';
+import { InvalidUserCredentialsError } from '../errors/invalid-user-credentials.error';
+import { UserEmailNotFoundError } from '../errors/user-email-not-found.error';
+import { UserPasswordIncorrectError } from '../errors/user-password-incorrect.error';
+import { AuthenticateUserDTO, IAuthService } from '../services/auth.service';
 
-export const createUserRoute = (diContainer: AwilixContainer): RouteShorthandOptionsWithHandler => ({
+export const createToken = (container: AwilixContainer): RouteShorthandOptionsWithHandler => ({
   schema: {
     body: {
       type: 'object',
-      required: ['name', 'email', 'password'],
+      required: ['email', 'password'],
       properties: {
-        name: { type: 'string', minLength: 1 },
+        // TODO: Move to separate schema definition
         email: {
           type: 'string',
           format: 'email',
@@ -26,9 +28,7 @@ export const createUserRoute = (diContainer: AwilixContainer): RouteShorthandOpt
           data: {
             type: 'object',
             properties: {
-              id: { type: 'number' },
-              name: { type: 'string' },
-              email: { type: 'string', format: 'email' },
+              access_token: { type: 'string' },
             },
           },
         },
@@ -49,20 +49,26 @@ export const createUserRoute = (diContainer: AwilixContainer): RouteShorthandOpt
     },
   },
   async handler(req: FastifyRequest, res: FastifyReply) {
-    const userService = diContainer.resolve<IUserService>('userService');
+    const authService = container.resolve<IAuthService>('authService');
+    const credentials = req.body as AuthenticateUserDTO;
 
     try {
-      const user = await userService.signUp(req.body as SignUpUserDTO);
+      const { accessToken } = await authService.authenticateByEmailPassword(credentials);
 
       return res.status(201).send({
         success: true,
-        data: user,
+        data: {
+          access_token: accessToken,
+        },
       });
     } catch (error) {
-      if (error instanceof UserEmailExistsError) {
-        return res.status(400).send({
+      if (
+        error instanceof UserEmailNotFoundError ||
+        error instanceof UserPasswordIncorrectError
+      ) {
+        return res.status(401).send({
           success: false,
-          error: error,
+          error: new InvalidUserCredentialsError(credentials.email),
         });
       }
 
