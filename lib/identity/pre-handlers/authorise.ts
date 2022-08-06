@@ -3,7 +3,7 @@ import { preHandlerHookHandler } from 'fastify';
 import { NotAuthorisedError } from '../errors/not-authorised.error';
 import { IAuthService } from '../services/auth.service';
 
-export const authorise = (diContainer: AwilixContainer): preHandlerHookHandler => async (req, res) => {
+export const authorise = (diContainer: AwilixContainer): preHandlerHookHandler => async (req) => {
   const authorisation = req.headers['authorization'];
   const values = authorisation?.split(' ');
 

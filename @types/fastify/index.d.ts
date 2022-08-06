@@ -1,3 +1,5 @@
+/* eslint @typescript-eslint/no-unused-vars: 0 */
+
 import fastify from 'fastify';
 import { ReadUserDTO } from '../../lib/identity/services/user.service';
 
@@ -11,6 +13,6 @@ declare module 'fastify' {
     RequestType extends FastifyRequestType = ResolveFastifyRequestType<TypeProvider, SchemaCompiler, RouteGeneric>,
     Logger extends FastifyLoggerInstance = FastifyLoggerInstance
   > {
-    user?: ReadUserDTO;
+    user: ReadUserDTO;
   }
 }

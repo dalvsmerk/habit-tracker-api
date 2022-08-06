@@ -1,6 +1,5 @@
 import { AwilixContainer } from 'awilix';
 import { RouteShorthandOptionsWithHandler } from 'fastify';
-import { InternalError } from '../../common/errors/internal.error';
 import { UserDoesNotExistError } from '../errors/user-does-not-exist.error';
 import { authorise } from '../pre-handlers/authorise';
 import { IUserService } from '../services/user.service';
@@ -11,19 +10,34 @@ export const getMe = (diContainer: AwilixContainer): RouteShorthandOptionsWithHa
       200: {
         type: 'object',
         properties: {
-          id: { type: 'number' },
-          name: { type: 'string' },
-          email: { type: 'string', format: 'email' },
+          success: { type: 'boolean', enum: [true] },
+          data: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              name: { type: 'string' },
+              email: { type: 'string', format: 'email' },
+            },
+          },
         },
       },
+      '4xx': {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', enum: [false] },
+          error: {
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              code: { type: 'string' },
+            },
+          },
+        },
+      }
     },
   },
   preHandler: authorise(diContainer),
   async handler(req, res) {
-    if (!req.user) {
-      throw new InternalError(new Error('Request is not decorated with user'));
-    }
-
     const userService = diContainer.resolve<IUserService>('userService');
 
     try {
