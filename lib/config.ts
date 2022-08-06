@@ -4,6 +4,13 @@ export const config = {
     },
     env: {
         isProduction: process.env.NODE_ENV === 'production',
-        isDevelopment: process.env.NODE_ENV === 'production',
+        isDevelopment: process.env.NODE_ENV === 'development',
+    },
+    db: {
+      client: 'sqlite3',
+      connection: {
+        filename: './dev.sqlite3'
+      },
+      useNullAsDefault: true,
     },
 };

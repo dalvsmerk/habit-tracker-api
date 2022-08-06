@@ -1,6 +1,12 @@
+# Operating system
+.DS_Store
+
 # IDE
 .vs_code
 .idea
 
 # Dependencies
 node_modules
+
+# Local SQLite db
+*.sqlite*
