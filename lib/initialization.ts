@@ -1,11 +1,12 @@
 import fastify, { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { config } from './config';
 import { ValidationError } from './common/errors/validation.error';
-import { registerIdentityRoutes } from './identity/routes';
+import { registerIdentityRoutes } from './identity/rest/routes';
 import { InternalError } from './common/errors/internal.error';
 import { registerDependencies } from './di-container';
 import { NotFoundError } from './common/errors/not-found.error';
 import { NotAuthorisedError } from './identity/errors/not-authorised.error';
+import { registerHabitsRoutes } from './habits/rest/routes';
 
 export async function start() {
   const server = fastify({ logger: true });
@@ -23,6 +24,8 @@ export async function start() {
   server.decorateRequest('user', undefined);
 
   registerIdentityRoutes(server, diContainer);
+  registerHabitsRoutes(server, diContainer);
+
   server.setErrorHandler(onServerError);
   server.setNotFoundHandler(onNotFoundError);
 

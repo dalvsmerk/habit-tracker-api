@@ -1,11 +1,11 @@
 import { AwilixContainer } from 'awilix';
 import { RouteShorthandOptionsWithHandler } from 'fastify';
-import { UserDoesNotExistError } from '../errors/user-does-not-exist.error';
-import { authorise } from '../pre-handlers/authorise';
-import { IUserService } from '../services/user.service';
+import { UserDoesNotExistError } from '../../errors/user-does-not-exist.error';
+import { IUserService } from '../../services/user.service';
 
-export const getMe = (diContainer: AwilixContainer): RouteShorthandOptionsWithHandler => ({
+export const getMeRoute = (diContainer: AwilixContainer): RouteShorthandOptionsWithHandler => ({
   schema: {
+    headers: { $ref: 'bearerAuthHeaderSchema#' },
     response: {
       200: {
         type: 'object',
@@ -21,22 +21,9 @@ export const getMe = (diContainer: AwilixContainer): RouteShorthandOptionsWithHa
           },
         },
       },
-      '4xx': {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean', enum: [false] },
-          error: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-              code: { type: 'string' },
-            },
-          },
-        },
-      }
+      404: { $ref: 'errorResponseSchema#' },
     },
   },
-  preHandler: authorise(diContainer),
   async handler(req, res) {
     const userService = diContainer.resolve<IUserService>('userService');
 

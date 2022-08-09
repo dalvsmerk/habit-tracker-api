@@ -2,6 +2,8 @@ export interface BaseEntity {
   id: number;
 }
 
+export type CreateEntityParams<T> = Omit<T, 'id'>;
+
 export interface IBaseRepository<T extends BaseEntity> {
-  create(entity: Omit<T, 'id'>): Promise<T>;
+  create(entity: CreateEntityParams<T>): Promise<T>;
 }

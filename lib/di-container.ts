@@ -5,6 +5,9 @@ import knex from 'knex';
 import { CacheService } from './common/services/cache.service';
 import { CryptoService } from './common/services/crypto.service';
 import { config } from './config';
+import { HabitGoalRepository } from './habits/repositories/habit-goal.repository';
+import { HabitRepository } from './habits/repositories/habit.repository';
+import { HabitService } from './habits/services/habit.service';
 import { UserRepository } from './identity/repositories/user.repository';
 import { AuthService } from './identity/services/auth.service';
 import { PasswordService } from './identity/services/password.service';
@@ -26,6 +29,9 @@ export function registerDependencies(server: FastifyInstance) {
     cryptoService: asClass(CryptoService, defaultDiOptions),
     userRepository: asClass(UserRepository, defaultDiOptions),
     authService: asClass(AuthService, defaultDiOptions),
+    habitRepository: asClass(HabitRepository, defaultDiOptions),
+    habitGoalRepository: asClass(HabitGoalRepository, defaultDiOptions),
+    habitService: asClass(HabitService, defaultDiOptions),
   });
 
   return diContainer;
