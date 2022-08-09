@@ -14,7 +14,10 @@ export class ValidationError extends CodedError {
 
   private static validationResultToMessage(v: ValidationResult) {
     const parameterPath = v.instancePath.replace(/\//g, '.').slice(1);
+    const allowedValues = v.params
+      ? `: ${v.params[Object.keys(v.params)[0]]}`
+      : '';
 
-    return `${parameterPath} ${v.message}`;
+    return `${parameterPath} ${v.message}${allowedValues}`;
   }
 }

@@ -6,6 +6,7 @@ import { InternalError } from './common/errors/internal.error';
 import { registerDependencies } from './di-container';
 import { NotFoundError } from './common/errors/not-found.error';
 import { NotAuthorisedError } from './identity/errors/not-authorised.error';
+import { registerHabitsRoutes } from './habits/rest/routes';
 
 export async function start() {
   const server = fastify({ logger: true });
@@ -23,6 +24,8 @@ export async function start() {
   server.decorateRequest('user', undefined);
 
   registerIdentityRoutes(server, diContainer);
+  registerHabitsRoutes(server, diContainer);
+
   server.setErrorHandler(onServerError);
   server.setNotFoundHandler(onNotFoundError);
 
