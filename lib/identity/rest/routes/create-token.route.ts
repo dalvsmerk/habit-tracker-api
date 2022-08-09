@@ -1,17 +1,16 @@
 import { AwilixContainer } from 'awilix';
 import { FastifyReply, FastifyRequest, RouteShorthandOptionsWithHandler } from 'fastify';
-import { InvalidUserCredentialsError } from '../errors/invalid-user-credentials.error';
-import { UserEmailNotFoundError } from '../errors/user-email-not-found.error';
-import { UserPasswordIncorrectError } from '../errors/user-password-incorrect.error';
-import { AuthenticateUserDTO, IAuthService } from '../services/auth.service';
+import { InvalidUserCredentialsError } from '../../errors/invalid-user-credentials.error';
+import { UserEmailNotFoundError } from '../../errors/user-email-not-found.error';
+import { UserPasswordIncorrectError } from '../../errors/user-password-incorrect.error';
+import { AuthenticateUserDTO, IAuthService } from '../../services/auth.service';
 
-export const createToken = (container: AwilixContainer): RouteShorthandOptionsWithHandler => ({
+export const createTokenRoute = (container: AwilixContainer): RouteShorthandOptionsWithHandler => ({
   schema: {
     body: {
       type: 'object',
       required: ['email', 'password'],
       properties: {
-        // TODO: Move to separate schema definition
         email: {
           type: 'string',
           format: 'email',
@@ -33,19 +32,7 @@ export const createToken = (container: AwilixContainer): RouteShorthandOptionsWi
           },
         },
       },
-      400: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean', enum: [false] },
-          error: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-              code: { type: 'string' },
-            },
-          },
-        },
-      },
+      '4xx': { $ref: 'errorResponseSchema#' },
     },
   },
   async handler(req: FastifyRequest, res: FastifyReply) {

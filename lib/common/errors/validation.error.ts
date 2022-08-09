@@ -1,4 +1,4 @@
-import { FastifyError } from 'fastify';
+import { FastifyError, ValidationResult } from 'fastify';
 import { CodedError } from './coded.error';
 
 export class ValidationError extends CodedError {
@@ -6,9 +6,15 @@ export class ValidationError extends CodedError {
 
   constructor(error: FastifyError) {
     const message = error.validation
-      ? error.validation.map(v => v.message).join(', ')
+      ? error.validation.map(ValidationError.validationResultToMessage).join(', ')
       : 'Validation error';
 
     super(message);
+  }
+
+  private static validationResultToMessage(v: ValidationResult) {
+    const parameterPath = v.instancePath.replace(/\//g, '.').slice(1);
+
+    return `${parameterPath} ${v.message}`;
   }
 }

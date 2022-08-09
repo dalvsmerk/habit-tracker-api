@@ -1,7 +1,7 @@
 import fastify, { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { config } from './config';
 import { ValidationError } from './common/errors/validation.error';
-import { registerIdentityRoutes } from './identity/routes';
+import { registerIdentityRoutes } from './identity/rest/routes';
 import { InternalError } from './common/errors/internal.error';
 import { registerDependencies } from './di-container';
 import { NotFoundError } from './common/errors/not-found.error';

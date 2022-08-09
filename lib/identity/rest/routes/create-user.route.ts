@@ -1,7 +1,7 @@
 import { AwilixContainer } from 'awilix';
 import { FastifyReply, FastifyRequest, RouteShorthandOptionsWithHandler } from 'fastify';
-import { UserEmailExistsError } from '../errors/email-exists.error';
-import { IUserService, SignUpUserDTO } from '../services/user.service';
+import { UserEmailExistsError } from '../../errors/email-exists.error';
+import { IUserService, SignUpUserDTO } from '../../services/user.service';
 
 export const createUserRoute = (diContainer: AwilixContainer): RouteShorthandOptionsWithHandler => ({
   schema: {
@@ -33,19 +33,7 @@ export const createUserRoute = (diContainer: AwilixContainer): RouteShorthandOpt
           },
         },
       },
-      400: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean', enum: [false] },
-          error: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-              code: { type: 'string' },
-            },
-          },
-        },
-      },
+      400: { $ref: 'errorResponseSchema#' },
     },
   },
   async handler(req: FastifyRequest, res: FastifyReply) {
