@@ -20,6 +20,7 @@ export interface ReadHabitDTO {
 
 export interface IHabitService {
   create(habitDTO: CreateHabitDTO): Promise<ReadHabitDTO>;
+  findAllFor(ownerId: number): Promise<ReadHabitDTO[]>;
 }
 
 export class HabitService implements IHabitService {
@@ -56,5 +57,9 @@ export class HabitService implements IHabitService {
     }
 
     return createdHabitDTO;
+  }
+
+  public async findAllFor(ownerId: number): Promise<ReadHabitDTO[]> {
+    return await this.habitRepository.findByOwnerId(ownerId);
   }
 }
