@@ -6,7 +6,9 @@ import { CacheService } from './common/services/cache.service';
 import { CryptoService } from './common/services/crypto.service';
 import { config } from './config';
 import { HabitGoalRepository } from './habits/repositories/habit-goal.repository';
+import { HabitLogEntryRepository } from './habits/repositories/habit-log-entry.repository';
 import { HabitRepository } from './habits/repositories/habit.repository';
+import { HabitLogService } from './habits/services/habit-log.service';
 import { HabitService } from './habits/services/habit.service';
 import { UserRepository } from './identity/repositories/user.repository';
 import { AuthService } from './identity/services/auth.service';
@@ -32,6 +34,8 @@ export function registerDependencies(server: FastifyInstance) {
     habitRepository: asClass(HabitRepository, defaultDiOptions),
     habitGoalRepository: asClass(HabitGoalRepository, defaultDiOptions),
     habitService: asClass(HabitService, defaultDiOptions),
+    habitLogService: asClass(HabitLogService, defaultDiOptions),
+    habitLogEntryRepository: asClass(HabitLogEntryRepository, defaultDiOptions),
   });
 
   return diContainer;

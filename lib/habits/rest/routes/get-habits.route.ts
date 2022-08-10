@@ -3,6 +3,7 @@ import { IHabitService } from '../../services/habit.service';
 
 export const getHabitsRoute: DiRoute = (container) => ({
   schema: {
+    headers: { $ref: 'bearerAuthHeaderSchema#' },
     response: {
       200: {
         type: 'object',
