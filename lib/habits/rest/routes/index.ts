@@ -16,6 +16,7 @@ export const registerHabitsRoutes = (server: FastifyInstance, diContainer: Awili
     instance.addHook('preHandler', authorise(diContainer));
     instance.post('/habit', createHabitRoute(diContainer));
     instance.get('/habits', getHabitsRoute(diContainer));
+    instance.post('/habit/:habitId/log', createHabitLogRoute(diContainer));
 
     done();
   }, { prefix: '/api/v1' });

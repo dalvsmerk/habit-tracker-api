@@ -1,11 +1,10 @@
-import { AwilixContainer } from 'awilix';
-import { FastifyReply, FastifyRequest, RouteShorthandOptionsWithHandler } from 'fastify';
+import { DiRoute } from '../../../common/rest/routes';
 import { InvalidUserCredentialsError } from '../../errors/invalid-user-credentials.error';
 import { UserEmailNotFoundError } from '../../errors/user-email-not-found.error';
 import { UserPasswordIncorrectError } from '../../errors/user-password-incorrect.error';
 import { AuthenticateUserDTO, IAuthService } from '../../services/auth.service';
 
-export const createTokenRoute = (container: AwilixContainer): RouteShorthandOptionsWithHandler => ({
+export const createTokenRoute: DiRoute = (container) => ({
   schema: {
     body: {
       type: 'object',
@@ -35,7 +34,7 @@ export const createTokenRoute = (container: AwilixContainer): RouteShorthandOpti
       '4xx': { $ref: 'errorResponseSchema#' },
     },
   },
-  async handler(req: FastifyRequest, res: FastifyReply) {
+  async handler(req, res) {
     const authService = container.resolve<IAuthService>('authService');
     const credentials = req.body as AuthenticateUserDTO;
 

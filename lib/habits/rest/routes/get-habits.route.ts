@@ -1,8 +1,7 @@
-import { AwilixContainer } from 'awilix';
-import { RouteShorthandOptionsWithHandler } from 'fastify';
+import { DiRoute } from '../../../common/rest/routes';
 import { IHabitService } from '../../services/habit.service';
 
-export const getHabitsRoute = (container: AwilixContainer): RouteShorthandOptionsWithHandler => ({
+export const getHabitsRoute: DiRoute = (container) => ({
   schema: {
     response: {
       200: {

@@ -1,8 +1,7 @@
-import { AwilixContainer } from 'awilix';
-import { RouteShorthandOptionsWithHandler } from 'fastify';
+import { DiRoute } from '../../../common/rest/routes';
 import { CreateHabitDTO, IHabitService } from '../../services/habit.service';
 
-export const createHabitRoute = (container: AwilixContainer): RouteShorthandOptionsWithHandler => ({
+export const createHabitRoute: DiRoute = (container) => ({
   schema: {
     headers: { $ref: 'bearerAuthHeaderSchema#' },
     body: {
