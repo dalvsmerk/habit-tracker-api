@@ -45,7 +45,7 @@ export const createHabitLogRoute: DiRoute = (container) => ({
     },
   },
   async handler (req, res) {
-    const habitLogService = container.resolve<IHabitLogService>('habitService');
+    const habitLogService = container.resolve<IHabitLogService>('habitLogService');
 
     const dto: CreateHabitLogEntryDTO = {
       created_at: (req.body as CreateHabitLogEntryBody).created_at,

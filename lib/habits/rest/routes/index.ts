@@ -6,6 +6,7 @@ import { bearerAuthHeaderSchema } from '../../../identity/rest/schemas/bearer-au
 import { habitSchema } from '../schemas/habit.schema';
 import { createHabitLogRoute } from './create-habit-log.route';
 import { createHabitRoute } from './create-habit.route';
+import { getDailyHabitLog } from './get-daily-habit-log.route';
 import { getHabitsRoute } from './get-habits.route';
 
 export const registerHabitsRoutes = (server: FastifyInstance, diContainer: AwilixContainer) => {
@@ -18,6 +19,7 @@ export const registerHabitsRoutes = (server: FastifyInstance, diContainer: Awili
     instance.post('/habit', createHabitRoute(diContainer));
     instance.get('/habits', getHabitsRoute(diContainer));
     instance.post('/habit/:habit_id/log', createHabitLogRoute(diContainer));
+    instance.get('/habit-log/daily/:today', getDailyHabitLog(diContainer));
 
     done();
   }, { prefix: '/api/v1' });

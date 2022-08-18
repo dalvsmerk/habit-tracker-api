@@ -22,7 +22,7 @@ exports.up = function(knex) {
       .then(function (exists) {
         if (!exists) {
           return knex.schema
-            .createTableIfNotExists('habit_goals', function (table) {
+            .createTable('habit_goals', function (table) {
               table.increments('id').notNullable().primary();
               table.string('amount', 310).notNullable(); // max 10 times per day monthly
               table.tinyint('interval', 1).notNullable();
